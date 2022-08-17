@@ -1,0 +1,7 @@
+.cards-container{
+	display: flex;
+	flex-wrap: nowrap;
+	overflow-x: auto;
+	max-width:90vw;
+	scroll-behavior: smooth;
+}

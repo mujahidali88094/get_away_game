@@ -1,0 +1,12 @@
+Frontend(
+  Turn animation
+)
+Take Cards from Next Person
+Last Two Persons' play in case senior has no cards left
+Delete games and users after not required
+Optimizations(
+  make arrays objects e.g. ArrangedMembers
+)
+Typescript
+redux
+Each game on separate thread
