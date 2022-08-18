@@ -4,6 +4,7 @@ const http = require('http');
 const {Server} = require("socket.io");
 // const cors = require("cors");
 const { v4: uuidv4 } = require('uuid');
+import path from "path";
 
 const port = process.env.PORT | 5000;
 // app.use(cors());
@@ -20,9 +21,9 @@ const server = http.createServer(app);
 const io = new Server(server);
 
 if (process.env.NODE_ENV == 'production') {
-	app.use(express.static('react_frontend/build'));
+	app.use(express.static(path.join(__dirname,'react_frontend/build')));
 	app.get('*', (req, res) => {
-		res.sendFile(path.resolve(__dirname, 'react_frontend/build', 'index.html'));
+		res.sendFile(path.join(__dirname, 'react_frontend/build', 'index.html'));
 	})
 }
 
