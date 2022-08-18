@@ -5,7 +5,7 @@ const {Server} = require("socket.io");
 const cors = require("cors");
 const { v4: uuidv4 } = require('uuid');
 
-const port = 3001;
+const port = process.env.PORT | 3001;
 app.use(cors());
 
 const server = http.createServer(app);
