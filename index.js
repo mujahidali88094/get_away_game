@@ -22,7 +22,7 @@ const io = new Server(server);
 if (process.env.NODE_ENV == 'production') {
 	app.use(express.static('react_frontend/build'));
 	app.get('*', (req, res) => {
-		req.sendFile(path.resolve(__dirname, 'react_frontend/build', 'index.html'));
+		res.sendFile(path.resolve(__dirname, 'react_frontend/build', 'index.html'));
 	})
 }
 
