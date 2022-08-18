@@ -1,0 +1,61 @@
+.slot{
+	background-color: #fff;
+	color: black;
+	border-radius: 0.6em;
+	overflow: hidden;
+	text-align: center;
+	/* box-shadow: 0 0px 20px rgba(0,0,0,0.15); */
+  transition: all 0.1s ease-in-out;
+	position: relative;
+}
+.slot::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  border-radius: 5px;
+  box-shadow: 0 0px 20px rgba(0,0,0,0.3);
+  transition: opacity 0.3s ease-in-out;
+}
+/* Scale up the box */
+.slot:hover {
+  transform: scale(1.2, 1.2);
+	z-index:5;
+}
+
+/* Fade in the pseudo-element with the bigger shadow */
+.slot:hover::after {
+  opacity: 1;
+}
+
+/* .slot .slot-card{
+	min-height: 200px;
+	min-width: 150px;
+} */
+.slot .slot-card{
+	min-width: 10em;
+	min-height: 10em;
+	padding: 0.5em;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.slot-card .status{
+	font-weight: bold;
+}
+.slot .info{
+	background-color: aliceblue;
+	padding: 0.7em 0.3em;
+	font-weight: bold;
+}
+.slot .info>*{
+	padding: 0.1em;
+}
+.badge{
+	border: 1px solid black;
+	border-radius: 50%;
+	display: inline-block;
+	padding: 0.2em !important;
+}
