@@ -2,20 +2,29 @@ const express = require("express");
 const app = express();
 const http = require('http');
 const {Server} = require("socket.io");
-const cors = require("cors");
+// const cors = require("cors");
 const { v4: uuidv4 } = require('uuid');
 
 const port = process.env.PORT | 5000;
-app.use(cors());
+// app.use(cors());
 
 const server = http.createServer(app);
 
 
-const io = new Server(server, {
-	cors: {
-		origin: 'http://localhost:3000',
-	}
-})
+// const io = new Server(server, {
+// 	cors: {
+// 		origin: 'http://localhost:3000',
+// 	}
+// })
+
+const io = new Server(server);
+
+if (process.env.NODE_ENV == 'production') {
+	app.use(express.static('react_frontend/build'));
+	app.get('*', (req, res) => {
+		req.sendFile(path.resolve(__dirname, 'react_frontend/build', 'index.html'));
+	})
+}
 
 server.listen(
   port,
