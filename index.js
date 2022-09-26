@@ -4,7 +4,7 @@ const http = require('http');
 const {Server} = require("socket.io");
 // const cors = require("cors");
 const { v4: uuidv4 } = require('uuid');
-import path from "path";
+const path = require("path");
 
 const port = process.env.PORT || 5000;
 // app.use(cors());
@@ -20,18 +20,19 @@ const server = http.createServer(app);
 
 const io = new Server(server);
 
-if (process.env.NODE_ENV == 'production') {
-	app.use(express.static(path.join(__dirname,'react_frontend/build')));
-	app.get('/*', (req, res) => {
-		res.sendFile(path.join(__dirname, 'react_frontend/build', 'index.html'));
-	})
-}
+//if (process.env.NODE_ENV == 'production') {
+	app.use(express.static(path.join(__dirname,'react_frontend','build')));
+	// app.get('/', (req, res) => {
+	// 	console.log(__dirname);
+	// 	res.sendFile(path.join(__dirname,'react_frontend','build','index.html'));
+	// })
+//}
 
 server.listen(
-  port,
-  console.log(
-    `Server is running on the port no: ${(port)} `
-  )
+	port,
+	console.log(
+		`Server is running on the port no: ${(port)}`
+	)
 );
 
 const SUITS = {

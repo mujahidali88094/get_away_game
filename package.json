@@ -4,8 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start-client": "cd react_frontend && npm run start",
+    "build": "(cd react_frontend && npm run build) && (cd ../ && npm install)",
+    "test": "cd react_frontend && npm run test",
+    "eject": "cd react_frontend && npm run eject",
+    "start": "node index.js"
   },
   "author": "",
   "license": "ISC",

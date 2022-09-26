@@ -6,7 +6,7 @@ import {CardsContextProvider} from './contexts/CardsContext';
 import io from 'socket.io-client';
 import { getCookie, setCookie } from './utilities/utility';
 
-const socket = io.connect('http://localhost:3001', {
+const socket = io.connect('', {
   query: {
     "prevSocketId": getCookie('socketId')
   }
