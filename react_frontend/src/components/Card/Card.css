@@ -1,0 +1,22 @@
+.card{
+	position: relative;
+	border: 0.2em solid black;
+	border-radius: 0.6em;
+	display: inline-flex;
+	flex-direction: row;
+	font-family: consolas;
+	padding: 0.2em;
+	filter: drop-shadow(2px 4px 6px);
+}
+.card .bottom, .card .top{
+	width:1.25em;
+}
+.card .main{
+	font-size: 5em;
+}
+.card .bottom{
+	align-self: flex-end;
+}
+.card .number{
+	font-weight: bold;
+}

@@ -1,0 +1,8 @@
+.normalCard{
+	cursor: pointer;
+	filter: opacity(1);
+}
+.disabledCard{
+	filter: opacity(0.1);
+	cursor: unset;
+}
