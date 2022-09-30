@@ -28,3 +28,9 @@ socket.on('disconnect', () => {
   console.log('I am disconnected');
 })
 
+
+if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)){
+  document.getElementsByTagName('body')[0].style.fontSize = '11px';
+}else{
+  document.getElementsByTagName('body')[0].style.fontSize = '16px';
+}

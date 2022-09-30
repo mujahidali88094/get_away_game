@@ -41,6 +41,14 @@ export default function MyCards() {
 		})
 	}, [mySocket]);
 
+	useEffect(() => {
+		let normalCards = document.getElementsByClassName('normalCard');
+		if (normalCards.length > 0) {
+			let middleCard = normalCards[Math.floor(normalCards.length/2)];
+			middleCard.scrollIntoView(false);
+		}
+	}, [enabledSuits]);
+
 	function removeHandler(cardToRemove){
 		setCards(cards => {
 			return cards.filter(card => (card.number !== cardToRemove.number || card.suit !== cardToRemove.suit));

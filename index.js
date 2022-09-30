@@ -259,8 +259,14 @@ class Game {
 			}
 			setValidSuits();
 			io.to(this.membersRoom).emit("status", { targetSocketId: turnHolder.socketId, status: 'Turn' });
-			let thrownCard;
-			thrownCard = await waitForCardToBeThrown(turnHolderSocket);
+			let thrownCard,response;
+			response = await waitForUserTurnOptions(turnHolderSocket);
+			if (response.type === 'takeCards') {
+				console.log('takeCardsRequested');
+				continue;
+			}
+			//else if (response.type === 'throwCard')
+			thrownCard = response.card;
 			turnHolderSocket.emit("disableAllSuits");
 			if (validSuits.indexOf(thrownCard.suit) == -1) { //suit not allowed
 				turnHolderSocket.emit("addCard", card); //add it back
@@ -370,12 +376,18 @@ function removeFromArray(array, toBeRemoved) {
 		array.splice(index, 1);
 	}
 }
-async function waitForCardToBeThrown(socket) {
-	return new Promise((resolve) => {
+async function waitForUserTurnOptions(socket) {
+	let throwCardPromise = new Promise((resolve) => {
 		socket.once("throwCard", (card) => {
-			resolve(card);
+			resolve({type:'throwCard', card:card});
 		});
 	});
+	let takeCardsPromise = new Promise((resolve) => {
+		socket.once("takeCards", () => {
+			resolve({type:'takeCards'});
+		});
+	});
+	return Promise.any([throwCardPromise, takeCardsPromise]);
 }
 async function waitOneSecond() {
 	return new Promise((resolve) => {

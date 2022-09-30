@@ -67,6 +67,9 @@ export default function Game() {
 		})
 	}, [mySocket]);
 
+	function takeCardsPressHandler() {
+		mySocket.emit('takeCards');
+	}
 
 	
 	return (
@@ -93,6 +96,7 @@ export default function Game() {
 					}
 				</div>
 			</div>
+			<button onClick={takeCardsPressHandler}>Take Cards</button>
 			<MyCards/>
 		</>
 	)
