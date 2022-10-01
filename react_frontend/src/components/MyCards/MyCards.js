@@ -39,6 +39,10 @@ export default function MyCards() {
 		mySocket.on('removeCard', cardToRemove => {
 			removeHandler(cardToRemove);
 		})
+
+		mySocket.on('removeAllCards', () => {
+			setCards([]);
+		})
 	}, [mySocket]);
 
 	useEffect(() => {

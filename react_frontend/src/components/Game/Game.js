@@ -7,6 +7,7 @@ import './Game.css';
 export default function Game() {
 	let { gameId, maxNoOfPlayers, members, myIndex,mySocket } = useContext(CardsContext);
 	let [arrangedMembers, setArrangedMembers] = useState([]);
+	let [takeCardsDisabled, setTakeCardsDisabled] = useState(true);
 
 	useEffect(() => {
 	}, [arrangedMembers]);
@@ -65,10 +66,14 @@ export default function Game() {
 				})
 			})
 		})
+
+		mySocket.on('enableTakeCards', () => { setTakeCardsDisabled(false); });
+		mySocket.on('disableTakeCards', () => { setTakeCardsDisabled(true); });
 	}, [mySocket]);
 
 	function takeCardsPressHandler() {
-		mySocket.emit('takeCards');
+		if(!takeCardsDisabled)
+			mySocket.emit('takeCards');
 	}
 
 	
@@ -96,7 +101,7 @@ export default function Game() {
 					}
 				</div>
 			</div>
-			<button onClick={takeCardsPressHandler}>Take Cards</button>
+			<button onClick={takeCardsPressHandler} disabled={takeCardsDisabled}>Take Cards</button>
 			<MyCards/>
 		</>
 	)

@@ -119,18 +119,18 @@ class Game {
 	maxNoOfPlayers;
 	members = [];
 	membersRoom;
-	NonPlayingMembersRoom;
+	playingMembersRoom;
 
 	constructor(maxNoOfPlayers,members) {
 		this.maxNoOfPlayers = maxNoOfPlayers;
 		members.forEach(socketId => this.members.push(new GameMember(socketId)));
 		this.membersRoom = uuidv4();
-		this.NonPlayingMembersRoom = uuidv4();
+		this.playingMembersRoom = uuidv4();
 		//join rooms
 		this.members.forEach(({ socketId }) => {
 			let socket = users[socketId].socket;
 			socket.join(this.membersRoom);
-			socket.join(this.NonPlayingMembersRoom);
+			socket.join(this.playingMembersRoom);
 		});
 	}
 	addMember(socketId) { //adds member and returns its index;
@@ -138,7 +138,7 @@ class Game {
 		//join rooms
 		let socket = users[socketId].socket;
 		socket.join(this.membersRoom);
-		socket.join(this.NonPlayingMembersRoom);
+		socket.join(this.playingMembersRoom);
 
 		return this.members.length - 1;
 	}
@@ -153,7 +153,7 @@ class Game {
 					targetSocketId: member.socketId
 				});
 				member.isPlaying = false;
-				users[member.socketId].socket.leave(this.membersRoom);
+				users[member.socketId].socket.leave(this.playingMembersRoom);
 			}
 		})
 	}
@@ -176,7 +176,7 @@ class Game {
 			targetSocketId: playingMember.socketId
 		});
 		playingMember.isPlaying = false;
-		users[playingMember.socketId].socket.leave(this.membersRoom);
+		users[playingMember.socketId].socket.leave(this.playingMembersRoom);
 		return true;
 	}
 	findNextPlayingMember(current) {
@@ -224,7 +224,7 @@ class Game {
 			deck.splice(0, division);
 			i++;
 		}
-		io.to(this.membersRoom).emit("disableAllSuits");
+		io.to(this.playingMembersRoom).emit("disableAllSuits");
 		//starting the game
 		let turnHolder = this.members[this.starter];
 		let turnHolderSocket;
@@ -259,10 +259,38 @@ class Game {
 			}
 			setValidSuits();
 			io.to(this.membersRoom).emit("status", { targetSocketId: turnHolder.socketId, status: 'Turn' });
-			let thrownCard,response;
+			let thrownCard, response;
+			if (pile.length < this.countPlayingMembers() - 1) { //only enable takeCards if this is not last turn of a round
+				turnHolderSocket.emit('enableTakeCards');
+			}
 			response = await waitForUserTurnOptions(turnHolderSocket);
+			turnHolderSocket.emit('disableTakeCards');
 			if (response.type === 'takeCards') {
-				console.log('takeCardsRequested');
+				//get target's cards
+				let targetPlayer = this.findNextPlayingMember(turnHolder);
+				let targetCards = [...targetPlayer.cards];
+				//add these to turn holder account
+				turnHolder.cards = [...turnHolder.cards, ...targetCards];
+				turnHolderSocket.emit('receiveMoreCards', targetCards);
+				//remove target's cards
+				targetPlayer.cards.splice(0, targetPlayer.cards.length);
+				io.to(targetPlayer.socketId).emit('removeAllCards');
+				//let the target player win
+				io.to(this.membersRoom).emit("status", {
+					status: "WON!",
+					targetSocketId: targetPlayer.socketId
+				});
+				targetPlayer.isPlaying = false;
+				users[targetPlayer.socketId].socket.leave(this.playingMembersRoom);
+				//update card counts
+				io.to(this.membersRoom).emit("changeCardsCount", {
+					targetSocketId: turnHolder.socketId,
+					newCardCount: turnHolder.cards.length
+				});
+				io.to(this.membersRoom).emit("changeCardsCount", {
+					targetSocketId: targetPlayer.socketId,
+					newCardCount: targetPlayer.cards.length
+				});
 				continue;
 			}
 			//else if (response.type === 'throwCard')
