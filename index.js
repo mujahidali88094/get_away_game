@@ -113,6 +113,23 @@ class GameMember{
 		const index = findIndexOfCard(card,this.cards);
 		if (index > -1)	this.cards.splice(index, 1);
 	}
+	declareWinner(membersRoom, playingMembersRoom) {
+		io.to(membersRoom).emit("status", {
+			status: "WON!",
+			targetSocketId: this.socketId
+		});
+		this.isPlaying = false;
+		users[this.socketId].socket.leave(playingMembersRoom);
+	}
+	declareLoser(membersRoom, playingMembersRoom) {
+		io.to(this.socketId).emit('disableAllSuits');
+		io.to(membersRoom).emit("status", {
+			status: "BHABI!",
+			targetSocketId: this.socketId
+		});
+		this.isPlaying = false;
+		users[this.socketId].socket.leave(playingMembersRoom);
+	}
 };
 class Game {
 	starter;
@@ -145,40 +162,6 @@ class Game {
 	setStarter(index) {
 		this.starter = index;
 	}
-	checkIfSomeoneWon() {
-		this.members.forEach(member => {
-			if (member.isPlaying && member.cards.length == 0) {
-				io.to(this.membersRoom).emit("status", {
-					status: "WON!",
-					targetSocketId: member.socketId
-				});
-				member.isPlaying = false;
-				users[member.socketId].socket.leave(this.playingMembersRoom);
-			}
-		})
-	}
-	gameHasEnded() {
-		let playingMembersCount = 0;
-		let playingMember = null;
-		this.members.forEach(member => {
-			if (member.isPlaying) {
-				playingMembersCount += 1;
-				playingMember = member;
-			}
-		})
-
-		if (playingMembersCount > 1)
-			return false;
-		//else playingMember is loser
-		io.to(playingMember.socketId).emit('disableAllSuits');
-		io.to(this.membersRoom).emit("status", {
-			status: "BHABI!",
-			targetSocketId: playingMember.socketId
-		});
-		playingMember.isPlaying = false;
-		users[playingMember.socketId].socket.leave(this.playingMembersRoom);
-		return true;
-	}
 	findNextPlayingMember(current) {
 		let currentIndex = this.members.indexOf(current);
 		let length = this.members.length;
@@ -199,10 +182,113 @@ class Game {
 		})
 		return playingMembersCount;
 	}
+	getPlayersWithNonZeroCards() {
+		let players = [];
+		this.members.forEach(member => {
+			if (member.isPlaying && member.cards.length>0 ) {
+				players.push(member);
+			}
+		})
+		return players;
+	}
+	getSenior(pile) {
+		let _highestCardNumber = '2', senior=null;
+		for (let i = 0; i < pile.length; i++){
+			if (NUMBER_VALUE_MAP.get(pile[i].card.number) >= NUMBER_VALUE_MAP.get(_highestCardNumber)) {
+				_highestCardNumber = pile[i].card.number;
+				senior = pile[i].cardOwner;
+			}
+		}
+		return senior;
+	}
+	determineFuture(pile) { //determines winners,loser and other key variables
+		let senior = null,
+			gameHasEnded = false,
+			playersWithNonZeroCards = this.getPlayersWithNonZeroCards();
+		
+		senior = this.getSenior(pile);
+		if (playersWithNonZeroCards.length == 0) {
+			//winners
+			this.members.forEach(member => {
+				if (member != senior)
+					member.declareWinner(this.membersRoom, this.playingMembersRoom);
+			});
+			//loser
+			senior.declareLoser(this.membersRoom, this.playingMembersRoom);
+			gameHasEnded = true;
+		} else if (playersWithNonZeroCards.length == 1) {
+			let leftoutPlayer = playersWithNonZeroCards[0];
+			if (senior == leftoutPlayer) {
+				//winners
+				this.members.forEach(member => {
+					if (member != senior)
+						member.declareWinner(this.membersRoom, this.playingMembersRoom);
+				})
+				//loser
+				senior.declareLoser(this.membersRoom, this.playingMembersRoom);
+				gameHasEnded = true;
+			}
+			else {
+				//winners
+				this.members.forEach(member => {
+					if (member != senior && member != leftoutPlayer)
+						member.declareWinner(this.membersRoom, this.playingMembersRoom);
+				})
+				//give one card of leftoutPlayer to senior
+				let randomIndex = (Math.floor(Math.random()) * 100) % leftoutPlayer.cards.length;
+				let randomCard = leftoutPlayer.cards[randomIndex];
+				//shift random card (on server side)
+				senior.cards = [...senior.cards, randomCard];
+				leftoutPlayer.cards.splice(randomIndex, 1);
+				//shift random card (on client side)
+				io.to(leftoutPlayer.socketId).emit('removeCard',randomCard);
+				io.to(senior.socketId).emit('addCard', randomCard);
+				io.to(this.membersRoom).emit("changeCardsCount", {
+					targetSocketId: senior.socketId,
+					newCardCount: senior.cards.length
+				});
+				io.to(this.membersRoom).emit("changeCardsCount", {
+					targetSocketId: leftoutPlayer.socketId,
+					newCardCount: leftoutPlayer.cards.length
+				});
+				gameHasEnded = false;
+			}
+
+		} else {
+			//winners
+			this.members.forEach(member => {
+				if (playersWithNonZeroCards.indexOf(member) == -1)
+					member.declareWinner(this.membersRoom, this.playingMembersRoom);
+			})
+			//determine senior from remaining pile
+			pile = pile.filter(({ cardOwner }) => (playersWithNonZeroCards.indexOf(cardOwner) > -1));
+			senior = this.getSenior(pile);
+			gameHasEnded = false;
+		}
+		return {
+			gameHasEnded,
+			senior,
+		};
+	}
+	determineFutureAfterThola() {
+		let playersWithNonZeroCards = this.getPlayersWithNonZeroCards();
+		//winners
+		this.members.forEach(member => {
+			if (playersWithNonZeroCards.indexOf(member) == -1)
+				member.declareWinner(this.membersRoom, this.playingMembersRoom);
+		})
+		//loser
+		if (playersWithNonZeroCards.length == 1) {
+			playersWithNonZeroCards[0].declareLoser(this.membersRoom, this.playingMembersRoom);
+			return { gameHasEnded: true };
+		}
+		return { gameHasEnded: false };
+	}
 
 	async startTheGame() {
 
 		let deck = createDeck();
+		deck.splice(0,42); //for testing
 		shuffle(deck);
 	
 		//dividing the cards
@@ -337,11 +423,9 @@ class Game {
 				pile = [];
 				io.to(this.membersRoom).emit("emptyPile");
 
-				//check if turnHolder has won
-				this.checkIfSomeoneWon();
-				if (this.gameHasEnded())
+				let { gameHasEnded } = this.determineFutureAfterThola();
+				if (gameHasEnded)
 					break;
-				
 				// for next turn
 				turnHolder = senior;
 				roundNumber += 1;
@@ -349,69 +433,30 @@ class Game {
 			}
 			//else
 			//identify senior
-			if (pile.length == 1) {
+			/*if (pile.length == 1) {
 				highestCardNumber = thrownCard.number;
+				senior = turnHolder;
 			}
 			else if (NUMBER_VALUE_MAP.get(thrownCard.number) > NUMBER_VALUE_MAP.get((highestCardNumber))) {
 				senior = turnHolder;
 				highestCardNumber = thrownCard.number;
-			}
+			}*/
 
 			//check if a round has completed
 			if (pile.length == this.countPlayingMembers()) {
 				if (isFirstRound) isFirstRound = false;
 				await waitOneSecond();
-				//only two players remaining
-				if ((this.countPlayingMembers() == 2) && (senior == turnHolder)) {
-					//empty pile
-					pile = [];
-					io.to(this.membersRoom).emit("emptyPile");
-					//choose random card from other player's cards
-					let otherPlayer = this.findNextPlayingMember(turnHolder);
-					let randomIndex = (Math.floor(Math.random()) * 100) % otherPlayer.cards.length;
-					let randomCard = otherPlayer.cards[randomIndex];
-					//shift random card (on server side)
-					turnHolder.cards = [...turnHolder.cards, randomCard];
-					otherPlayer.cards.splice(randomIndex, 1);
-					//shift random card (on client side)
-					io.to(otherPlayer.socketId).emit('removeCard',randomCard);
-					io.to(turnHolder.socketId).emit('addCard', randomCard);
-					io.to(this.membersRoom).emit("changeCardsCount", {
-						targetSocketId: turnHolder.socketId,
-						newCardCount: turnHolder.cards.length
-					});
-					io.to(this.membersRoom).emit("changeCardsCount", {
-						targetSocketId: otherPlayer.socketId,
-						newCardCount: otherPlayer.cards.length
-					});
-					//next round
-					roundNumber += 1;
-					continue;
-				}
-				this.checkIfSomeoneWon();
-				if (this.gameHasEnded()) {
-					//TODO: free memory by deleting game
-					break;
-				}
-
-				//filter cards of NonPlayingMembers from Pile
-				let newPile = [];
-				pile.forEach(pileCard => {
-					if (pileCard.cardOwner.isPlaying) {
-						newPile.push(pileCard);
-					}
-				})
-				//get senior from filtered pile because some members may have won
-				let _highestCardNumber = '2';
-				for (let i = 0; i < newPile.length; i++){
-					if (NUMBER_VALUE_MAP.get(newPile[i].card.number) >= NUMBER_VALUE_MAP.get(_highestCardNumber)) {
-						_highestCardNumber = newPile[i].card.number;
-						senior = newPile[i].cardOwner;
-					}
-				}
+				
+				let { gameHasEnded, _senior } = this.determineFuture(pile);
+				if(_senior)
+					senior = _senior;
 
 				pile = [];
 				io.to(this.membersRoom).emit("emptyPile");
+
+				if (gameHasEnded)
+					break;
+
 				turnHolder = senior;
 
 				roundNumber += 1;
