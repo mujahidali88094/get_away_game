@@ -361,6 +361,33 @@ class Game {
 			if (pile.length == this.countPlayingMembers()) {
 				if (isFirstRound) isFirstRound = false;
 				await waitOneSecond();
+				//only two players remaining
+				if ((this.countPlayingMembers() == 2) && (senior == turnHolder)) {
+					//empty pile
+					pile = [];
+					io.to(this.membersRoom).emit("emptyPile");
+					//choose random card from other player's cards
+					let otherPlayer = this.findNextPlayingMember(turnHolder);
+					let randomIndex = (Math.floor(Math.random()) * 100) % otherPlayer.cards.length;
+					let randomCard = otherPlayer.cards[randomIndex];
+					//shift random card (on server side)
+					turnHolder.cards = [...turnHolder.cards, randomCard];
+					otherPlayer.cards.splice(randomIndex, 1);
+					//shift random card (on client side)
+					io.to(otherPlayer.socketId).emit('removeCard',randomCard);
+					io.to(turnHolder.socketId).emit('addCard', randomCard);
+					io.to(this.membersRoom).emit("changeCardsCount", {
+						targetSocketId: turnHolder.socketId,
+						newCardCount: turnHolder.cards.length
+					});
+					io.to(this.membersRoom).emit("changeCardsCount", {
+						targetSocketId: otherPlayer.socketId,
+						newCardCount: otherPlayer.cards.length
+					});
+					//next round
+					roundNumber += 1;
+					continue;
+				}
 				this.checkIfSomeoneWon();
 				if (this.gameHasEnded()) {
 					//TODO: free memory by deleting game
