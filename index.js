@@ -446,9 +446,10 @@ class Game {
 				if (isFirstRound) isFirstRound = false;
 				await waitOneSecond();
 				
-				let { gameHasEnded, _senior } = this.determineFuture(pile);
-				if(_senior)
-					senior = _senior;
+				let future = this.determineFuture(pile);
+				let gameHasEnded = future.gameHasEnded;
+				if(future.senior)
+					senior = future.senior;
 
 				pile = [];
 				io.to(this.membersRoom).emit("emptyPile");
