@@ -288,7 +288,6 @@ class Game {
 	async startTheGame() {
 
 		let deck = createDeck();
-		deck.splice(0,42); //for testing
 		shuffle(deck);
 	
 		//dividing the cards
