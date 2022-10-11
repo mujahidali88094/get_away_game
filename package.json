@@ -5,14 +5,16 @@
   "main": "index.js",
   "scripts": {
     "start-client": "cd react_frontend && npm run start",
-    "build": "(npm install) && (cd react_frontend && npm install && npm run build) && (cd ../)",
+    "build": "(npx tsc) && (cd react_frontend && npm install && npm run build) && (cd ../)",
     "test": "cd react_frontend && npm run test",
     "eject": "cd react_frontend && npm run eject",
-    "start": "node index.js"
+    "start": "node dist/index.js",
+    "dev": "npx tsc && npm run start"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/uuid": "^8.3.4",
     "cors": "^2.8.5",
     "express": "^4.18.1",
     "nodemon": "^2.0.18",
@@ -23,5 +25,10 @@
   "engines": {
     "node": "16.16.0",
     "npm": "8.15.1"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.14",
+    "@types/node": "^18.8.3",
+    "typescript": "^4.8.4"
   }
 }
