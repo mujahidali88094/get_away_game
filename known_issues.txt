@@ -1,3 +1,5 @@
 1. (node:4016) MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 takeCards listeners added to [Socket]. Use emitter.setMaxListeners() to increase limit
 (Use `node --trace-warnings ...` to show where the warning was created)       
 (node:4016) MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 takeCards listeners added to [Socket]. Use emitter.setMaxListeners() to increase limit
+
+2. empty useEffect on client side in game component, check older versions (on github) if we are missing some logic here

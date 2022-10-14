@@ -4,7 +4,7 @@ import ChoiceForm from '../../components/ChoiceForm';
 
 export const ChoicePage = () => {
   return (
-    <View style={{backgroundColor: 'cyan'}}>
+    <View style={{backgroundColor: 'cyan', width: '50%'}}>
       <ChoiceForm />
     </View>
   );

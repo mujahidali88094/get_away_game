@@ -107,7 +107,7 @@ export const ChoiceForm = () => {
             />
           </>
         ) : null}
-        <View>
+        <View style={{alignSelf: 'center'}}>
           <Button color="green" onPress={() => handleSubmit()} title="Go" />
         </View>
       </View>

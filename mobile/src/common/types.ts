@@ -10,6 +10,13 @@ export type ChoiceFromFrontend = {
   gameId: SocketId;
   noOfPlayers: number;
 };
+export type Member = {
+  socketId: SocketId;
+  name: string;
+  cardCount: number;
+  card?: CardType | null;
+  status?: string | null;
+};
 
 export type CardNumber =
   | 'A'
@@ -30,7 +37,7 @@ export type CardSuit =
   | typeof SUITS.CLUB
   | typeof SUITS.DIAMOND
   | typeof SUITS.SPADE;
-export type Card = {
+export type CardType = {
   number: CardNumber;
   suit: CardSuit;
 };

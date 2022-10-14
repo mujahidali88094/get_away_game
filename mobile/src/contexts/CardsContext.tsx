@@ -1,7 +1,7 @@
 import React, {useState, useContext} from 'react';
 import {Socket} from 'socket.io';
 import {USERNAME_KEY} from '../common/constants';
-import {SocketId, Card} from '../common/types';
+import {SocketId, CardType, Member} from '../common/types';
 import {getData, storeData} from '../common/utilities';
 // import { getCookie, setCookie } from "../utilities/utility";
 
@@ -16,9 +16,9 @@ export const CardsContextProvider: React.FC<{
   let [mySocket, setMySocket] = useState<Socket>(socket);
   let [gameId, setGameId] = useState<SocketId>('');
   let [maxNoOfPlayers, setMaxNoOfPlayers] = useState(0);
-  let [members, setMembers] = useState([]);
+  let [members, setMembers] = useState<Member[]>([]);
   let [myIndex, setMyIndex] = useState(0);
-  let [cards, setCards] = useState<Card[]>([]);
+  let [cards, setCards] = useState<CardType[]>([]);
 
   let changeName = (newName: string) => {
     storeData(USERNAME_KEY, newName);
