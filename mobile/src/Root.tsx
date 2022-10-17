@@ -6,7 +6,7 @@ import Home from './Home';
 import Toast from 'react-native-toast-message';
 
 const Root = () => {
-  let socket: Socket = io('http://10.49.10.131:5000');
+  let socket: Socket = io('http://just-get-away.herokuapp.com/');
 
   return (
     <View>
