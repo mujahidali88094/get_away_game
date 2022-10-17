@@ -3,6 +3,7 @@ import http from 'http';
 import {Server,Socket} from "socket.io";
 import { v4 as uuidv4 } from 'uuid';
 import path from "path";
+import cors from 'cors';
 
 import { CardNumber, CardSuit, Card, ChoiceFromFrontend, PileCard, SocketId, ResponseOnTurn } from "./types";
 import { GameMember, User, Game, FrontEndUser } from './classes';
@@ -10,6 +11,7 @@ import { createDeck, shuffle, waitOneSecond, waitForUserTurnOptions} from './uti
 import { CHOICES,DEFAULT_NO_OF_PLAYERS, ALL_SUITS } from "./constants";
 
 const app = express();
+app.use(cors({ origin: '*' }));
 const port = process.env.PORT || 5000;
 const server = http.createServer(app);
 const io = new Server(server);
