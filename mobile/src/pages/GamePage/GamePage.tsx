@@ -102,8 +102,8 @@ const GamePage = () => {
   return (
     <View>
       <View style={{flexDirection: 'row', justifyContent: 'space-evenly'}}>
-        <Text>GameID: {gameId}</Text>
-        <Text>Max Players: {maxNoOfPlayers}</Text>
+        <Text style={{color: 'white'}}>GameID: {gameId}</Text>
+        <Text style={{color: 'white'}}>Max Players: {maxNoOfPlayers}</Text>
       </View>
       <ScrollView horizontal>
         {arrangedMembers.map((member, i) => {
@@ -119,11 +119,13 @@ const GamePage = () => {
           );
         })}
       </ScrollView>
-      <Button
-        onPress={takeCardsPressHandler}
-        title="Take Cards"
-        disabled={takeCardsDisabled}
-      />
+      <View style={{alignSelf: 'center'}}>
+        <Button
+          onPress={takeCardsPressHandler}
+          title="Take Cards"
+          disabled={takeCardsDisabled}
+        />
+      </View>
       <MyCards />
     </View>
   );

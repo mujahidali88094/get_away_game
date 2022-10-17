@@ -58,7 +58,7 @@ const Home = () => {
   ]);
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={{backgroundColor: 'black', height: '100%'}}>
       <StatusBar hidden barStyle="light-content" animated />
       <ScrollView contentInsetAdjustmentBehavior="automatic">
         <Header textColor={isConnected ? 'green' : 'red'} />

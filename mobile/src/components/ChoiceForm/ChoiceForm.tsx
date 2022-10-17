@@ -73,11 +73,12 @@ export const ChoiceForm = () => {
   };
   return (
     <>
-      <View>
-        <Text>Hi</Text>
+      <View style={{padding: 5, justifyContent: 'space-evenly'}}>
+        <Text style={{color: 'white'}}>Hi</Text>
         <TextInput
           value={form_name}
           onChangeText={str => handleNameChange(str)}
+          style={{color: 'white', borderBottomWidth: 2, borderColor: 'white'}}
         />
         <RadioButtonRN
           data={choice_labels}
@@ -85,30 +86,40 @@ export const ChoiceForm = () => {
           selectedBtn={(response: any) => handleChoiceChange(response.label)}
           box={false}
           circleSize={10}
-          textColor="gray"
-          activeColor="black"
+          textColor="white"
+          activeColor="white"
           deactiveColor="gray"
         />
         {form_choice === CHOICES.JOIN_FRIENDS ? (
           <>
-            <Text>Game ID:</Text>
+            <Text style={{color: 'white'}}>Game ID:</Text>
             <TextInput
               value={form_game_id}
               onChangeText={str => handleGameIdChange(str)}
+              style={{
+                color: 'white',
+                borderBottomWidth: 2,
+                borderColor: 'white',
+              }}
             />
           </>
         ) : form_choice === CHOICES.CREATE_GAME ? (
           <>
-            <Text>No Of Players:</Text>
+            <Text style={{color: 'white'}}>No Of Players:</Text>
             <TextInput
               value={form_no_of_players.toString()}
               onChangeText={str => handleNoOfPlayersChange(str)}
               keyboardType="numeric"
+              style={{
+                color: 'white',
+                borderBottomWidth: 2,
+                borderColor: 'white',
+              }}
             />
           </>
         ) : null}
-        <View style={{alignSelf: 'center'}}>
-          <Button color="green" onPress={() => handleSubmit()} title="Go" />
+        <View style={{alignSelf: 'stretch'}}>
+          <Button color="gray" onPress={() => handleSubmit()} title="Go" />
         </View>
       </View>
     </>
